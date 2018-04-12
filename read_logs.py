@@ -2,11 +2,14 @@ import gzip
 import re
 import pandas as pd
 
-def read_logs(archivogzip):
+def read_logs(archivogzip, type_file):
 
     ips,date,hour,diff,method,url,status_code,download,referrer,user_agent=[],[],[],[],[],[],[],[],[],[]
-
-    with gzip.open(archivogzip, 'rb') as f:
+    if type_file == "gzip":
+        with gzip.open(archivogzip, 'rb') as f:
+            log_decompressed = f.read()
+    elif type_file == "log":
+        f = open(archivogzip, 'rb')
         log_decompressed = f.read()
     log_decompressed=str(log_decompressed)
     log_decompressed = log_decompressed.split("\\")
@@ -70,5 +73,5 @@ def read_logs(archivogzip):
     logs_finales
     return logs_finales
 
-logs = read_logs(r'PATH-TO-FILE')
+logs = read_logs(r'PATH-TO-FILE', "EXTENSION") # Path: C:\dir\file.extension && Extension: "gzip" | "log"
 logs.to_csv("logs.csv", sep="\t", encoding="utf-8")
