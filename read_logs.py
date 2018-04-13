@@ -28,9 +28,9 @@ def read_logs(archivogzip, type_file):
         d = log[p:p+5]
         diff.append(d)
         try:
-            me = re.search("GET|POST",log).group(0)
+            me = re.search("GET|POST|HEAD",log).group(0)
         except:
-            me = re.search("GET|POST",log)
+            me = re.search("GET|POST|HEAD",log)
         method.append(me)
         co = log.find(" /")
         ss = log.find(" ",co+1)
