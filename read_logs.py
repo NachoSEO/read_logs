@@ -2,14 +2,14 @@ import gzip
 import re
 import pandas as pd
 
-def read_logs(archivogzip, type_file):
+def read_logs(file, type_file):
 
     ips,date,hour,diff,method,url,status_code,download,referrer,user_agent=[],[],[],[],[],[],[],[],[],[]
     if type_file == "gzip":
-        with gzip.open(archivogzip, 'rb') as f:
+        with gzip.open(file, 'rb') as f:
             log_decompressed = f.read()
     elif type_file == "log":
-        f = open(archivogzip, 'rb')
+        f = open(file, 'rb')
         log_decompressed = f.read()
     log_decompressed=str(log_decompressed)
     log_decompressed = log_decompressed.split("\\")
@@ -51,7 +51,7 @@ def read_logs(archivogzip, type_file):
         ua = log[end_ref+1:].replace('"','')
         user_agent.append(ua)
 
-    logs_finales = pd.DataFrame({
+    final_log = pd.DataFrame({
         "IP": ips,
         "date":date,
         "hour":hour,
@@ -63,15 +63,15 @@ def read_logs(archivogzip, type_file):
         "referrer":referrer,
         "user_agent":user_agent
     })
-    logs_filtrados = logs_finales["user_agent"].str.contains("Googlebot", na=False) 
-    logs_finales = logs_finales[logs_filtrados]
+    filtered_log = final_log["user_agent"].str.contains("Googlebot", na=False) 
+    final_log = final_log[filtered_log]
     try:
-        logs_finales.reset_index(inplace=True)
+        final_log.reset_index(inplace=True)
     except:
         pass
-    logs_finales = logs_finales[["IP","date","hour","diff","method","url","status_code","download","referrer","user_agent"]]
-    logs_finales
-    return logs_finales
+    final_log = final_log[["IP","date","hour","diff","method","url","status_code","download","referrer","user_agent"]]
+    final_log
+    return final_log
 
 logs = read_logs(r'PATH-TO-FILE', "EXTENSION") # Path: C:\dir\file.extension && Extension: "gzip" | "log"
 logs.to_csv("logs.csv", sep="\t", encoding="utf-8")
