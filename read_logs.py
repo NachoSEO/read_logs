@@ -1,6 +1,28 @@
 import gzip
 import re
 import pandas as pd
+import socket
+from IPython.core.display import clear_output
+
+def check_googlebot(ips):
+    verified = []
+    for ip in range(len(ips)):
+        try:
+            verify = socket.gethostbyaddr(ips[ip])
+            gf = verify[0].find(".")
+            gfi = verify[0].find(".",  gf+1)
+            host = verify[0][gf+1:gfi]
+            if host == "google" or host == "googlebot":
+                verified.append("verified")
+            else:
+                verified.append("fake")
+        except:
+            verified.append("fake")
+            
+        print("Verifying " + str(ip) + " of "+ str(len(ips)-1))
+        clear_output(wait = True)
+        
+    return verified
 
 def read_logs(file, type_file):
 
@@ -50,7 +72,7 @@ def read_logs(file, type_file):
         referrer.append(ref)
         ua = log[end_ref+1:].replace('"','')
         user_agent.append(ua)
-
+        
     final_log = pd.DataFrame({
         "IP": ips,
         "date":date,
@@ -70,7 +92,7 @@ def read_logs(file, type_file):
     except:
         pass
     final_log = final_log[["IP","date","hour","diff","method","url","status_code","download","referrer","user_agent"]]
-    final_log
+    final_log["verified"] = check_googlebot(final_log["IP"]) #Comment this line if you don't want to verify Googlebot
     return final_log
 
 logs = read_logs(r'PATH-TO-FILE', "EXTENSION") # Path: C:\dir\file.extension && Extension: "gzip" | "log"
